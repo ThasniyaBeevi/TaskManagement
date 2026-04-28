@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskManagement.Api.Data;
 using TaskManagement.Api.Models;
 
 namespace TaskManagement.Api.Controllers
@@ -7,19 +8,24 @@ namespace TaskManagement.Api.Controllers
     [Route("api/[controller]")]
     public class TasksController : ControllerBase
     {
-        private static List<TaskItem> tasks = new List<TaskItem>();
+        private readonly AppDbContext _context;
+
+        public TasksController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(tasks);
+            return Ok(_context.Tasks.ToList());
         }
 
         [HttpPost]
         public IActionResult Create(TaskItem task)
         {
-            task.Id = tasks.Count + 1;
-            tasks.Add(task);
+            _context.Tasks.Add(task);
+            _context.SaveChanges();
             return Ok(task);
         }
     }
